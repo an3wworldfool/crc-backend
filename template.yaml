@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  crc-backend
+
+  Backend that updates the number of viewers from germansp.com.
+  It consists of an API Gateway, a lambda function in python and a DynamoDB table
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+
+Resources:
+  UpdateViewersFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: update_viewers/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        ApiEvent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /views
+            Method: get
+            RestApiId: !Ref UpdateViewersApi
+      Environment: 
+        Variables:
+          DYNAMODB_TABLE: !Ref PortfolioViewsTable
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AWSLambdaBasicExecutionRole
+      
+
+  PortfolioViewsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "PortfolioViewsTable"
+      AttributeDefinitions:
+        -
+          AttributeName: "website"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "website"
+          KeyType: "HASH"
+      BillingMode: PROVISIONED
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "3"
+        WriteCapacityUnits: "3"
+  
+  UpdateViewersApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      EndpointConfiguration:
+        Type: REGIONAL
+      Cors:
+        AllowMethods: "'OPTIONS, GET'"
+        AllowHeaders: "'X-Forwarded-For'"
+        AllowOrigin: "'*'"
+
+
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  UpdateViewersApiEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${UpdateViewersApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/views/"
+  UpdateViewersFunction:
+    Description: "Function to update the number of viewers on website ARN"
+    Value: !GetAtt UpdateViewersFunction.Arn
+  UpdateViewersFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt UpdateViewersFunction.Arn
