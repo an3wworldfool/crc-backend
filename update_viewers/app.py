@@ -1,22 +1,3 @@
-"""
-import json
-
-# import requests
-
-
-def lambda_handler(event, context):
-    
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
-    }
-
-"""
-
-
 import json
 import boto3
 import botocore
@@ -61,3 +42,5 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps({"views":response["Attributes"]["views"]["N"]})
     }
+
+

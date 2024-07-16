@@ -38,6 +38,7 @@ Resources:
 
   PortfolioViewsTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
     Properties:
       TableName: "PortfolioViewsTable"
       AttributeDefinitions:
