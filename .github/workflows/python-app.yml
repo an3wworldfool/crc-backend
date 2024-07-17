@@ -43,7 +43,7 @@ jobs:
         run: sam deploy --s3-bucket ${{ env.BUCKET_NAME }} --region ${{ env.AWS_REGION }} --no-confirm-changeset --no-fail-on-empty-changeset
       - name: Install project dependencies
         run: pip install -r requirements.txt
-      - name: Test that database is populated
+      - name: Test that database is populated!
         run: REGION=${{env.AWS_REGION}} TABLE_NAME=${{secrets.TABLE_NAME}} py.test ./tests/ddb_is_not_empty.py
       
     
