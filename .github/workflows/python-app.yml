@@ -6,8 +6,6 @@ name: Python application
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 env:
   BUCKET_NAME : ${{secrets.CF_BUCKET_NAME}}
@@ -44,7 +42,7 @@ jobs:
       - name: Install project dependencies
         run: pip install -r requirements.txt
       - name: Test that database is populated!
-        run: REGION=${{env.AWS_REGION}} TABLE_NAME=${{secrets.TABLE_NAME}} py.test ./tests/ddb_is_not_empty.py
+        run: REGION=${{env.AWS_REGION}} TABLE_NAME=${{secrets.TABLE_NAME}} pytest ./tests/ddb_is_not_empty.py
       
     
         
